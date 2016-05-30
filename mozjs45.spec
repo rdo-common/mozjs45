@@ -3,7 +3,7 @@
 Summary:	JavaScript interpreter and libraries
 Name:		mozjs%{major}
 Version:	%{major}.1.1
-Release:	3%{?dist}
+Release:	4%{?dist}
 License:	MPLv2.0 and MPLv1.1 and BSD and GPLv2+ and GPLv3+ and LGPLv2.1 and LGPLv2.1+ and AFL and ASL 2.0
 URL:		https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Releases/45
 Source0:        https://ftp.mozilla.org/pub/firefox/releases/%{version}esr/source/firefox-%{version}esr.source.tar.xz
@@ -128,6 +128,9 @@ tests/jstests.py -d -s --no-progress ../../js/src/js/src/shell/js
 %{_includedir}/mozjs-%{major}
 
 %changelog
+* Mon May 30 2016 Dan Horák <dan[at]danny.cz> - 45.1.1-4
+- Fix build on s390 by refreshing the build patch
+
 * Tue May 24 2016 Marek Skalicky <mskalick@redhat.com> - 45.1.1-3
 - Fixed license handling
 
