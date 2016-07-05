@@ -3,7 +3,7 @@
 Summary:	JavaScript interpreter and libraries
 Name:		mozjs%{major}
 Version:	%{major}.1.1
-Release:	5%{?dist}
+Release:	6%{?dist}
 License:	MPLv2.0 and MPLv1.1 and BSD and GPLv2+ and GPLv3+ and LGPLv2.1 and LGPLv2.1+ and AFL and ASL 2.0
 URL:		https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Releases/45
 Source0:        https://ftp.mozilla.org/pub/firefox/releases/%{version}esr/source/firefox-%{version}esr.source.tar.xz
@@ -12,7 +12,9 @@ Source1:        LICENSE.txt
 # According to mozilla devs x86_64 is the only 64-bit architecture. I tend to not agree with them.
 Patch0:	fix-64bit-archs.patch
 # same issue on s390 as in XUL/FF - https://bugzilla.redhat.com/show_bug.cgi?id=1219542
-Patch1:	rhbz-1219542-s390-build.patch
+Patch1: rhbz-1219542-s390-build.patch
+Patch2: mozbz-1143022.patch
+Patch3: mozbz-1277742.patch
 
 BuildRequires:	pkgconfig(icu-i18n)
 BuildRequires:	pkgconfig(nspr)
@@ -47,6 +49,8 @@ you will need to install %{name}-devel.
 %ifarch s390
 %patch1 -p3 -b .rhbz-1219542-s390
 %endif
+%patch2 -p3
+%patch3 -p3
 
 %if 0%{?fedora} > 22
 # Correct failed to link tests due to hardened build
@@ -130,6 +134,9 @@ tests/jstests.py -d -s --no-progress ../../js/src/js/src/shell/js
 %{_includedir}/mozjs-%{major}
 
 %changelog
+* Tue Jul  5 2016 Peter Robinson <pbrobinson@fedoraproject.org> 45.1.1-6
+- Add upstream patches for aarch64 48-bit VA
+
 * Mon May 30 2016 Marek Skalický <mskalick@redhat.com> - 45.1.1-5
 - Disable tests for arm
 

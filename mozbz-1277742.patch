@@ -1,0 +1,33 @@
+
+# HG changeset patch
+# User Makoto Kato <m_kato@ga2.so-net.ne.jp>
+# Date 1464948660 -32400
+# Node ID 58137ecd12edb7ae1a57c80da811676bc66fd03c
+# Parent  d02ab40ae319910659cf19114f41e7aa7ce68e4d
+Bug 1277742 - Use correct namespace for ChunkSize on aarch64. r=ehoogeveen
+
+MozReview-Commit-ID: FqXkZaOG6SK
+
+diff --git a/js/src/jsapi-tests/testGCAllocator.cpp b/js/src/jsapi-tests/testGCAllocator.cpp
+--- a/js/src/jsapi-tests/testGCAllocator.cpp
++++ b/js/src/jsapi-tests/testGCAllocator.cpp
+@@ -342,17 +342,17 @@ mapMemory(size_t length)
+         if (munmap(region, length))
+             MOZ_RELEASE_ASSERT(errno == ENOMEM);
+         return nullptr;
+     }
+     return region;
+ #elif defined(__aarch64__)
+     const uintptr_t start = UINT64_C(0x0000070000000000);
+     const uintptr_t end   = UINT64_C(0x0000800000000000);
+-    const uintptr_t step  = ChunkSize;
++    const uintptr_t step  = js::gc::ChunkSize;
+     uintptr_t hint;
+     void* region = MAP_FAILED;
+     for (hint = start; region == MAP_FAILED && hint + length <= end; hint += step) {
+         region = mmap((void*)hint, length, prot, flags, fd, offset);
+         if (region != MAP_FAILED) {
+             if ((uintptr_t(region) + (length - 1)) & 0xffff800000000000) {
+                 if (munmap(region, length)) {
+                     MOZ_RELEASE_ASSERT(errno == ENOMEM);
+
