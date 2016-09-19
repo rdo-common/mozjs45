@@ -2,8 +2,8 @@
 
 Summary:	JavaScript interpreter and libraries
 Name:		mozjs%{major}
-Version:	%{major}.1.1
-Release:	6%{?dist}
+Version:	%{major}.3.0
+Release:	1%{?dist}
 License:	MPLv2.0 and MPLv1.1 and BSD and GPLv2+ and GPLv3+ and LGPLv2.1 and LGPLv2.1+ and AFL and ASL 2.0
 URL:		https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Releases/45
 Source0:        https://ftp.mozilla.org/pub/firefox/releases/%{version}esr/source/firefox-%{version}esr.source.tar.xz
@@ -23,6 +23,7 @@ BuildRequires:	pkgconfig(zlib)
 BuildRequires:	readline-devel
 BuildRequires:	/usr/bin/zip
 BuildRequires:	python-devel
+BuildRequires:	perl-devel
 
 # Firefox does not allow to build with system version of jemalloc
 Provides: bundled(jemalloc) = 4.0.0-12.ged4883285e111b426e5769b24dad164ebacaa5b9
@@ -134,6 +135,9 @@ tests/jstests.py -d -s --no-progress ../../js/src/js/src/shell/js
 %{_includedir}/mozjs-%{major}
 
 %changelog
+* Fri Sep 16 2016 Marek Skalický <mskalick@redhat.com> - 45.3.0-1
+- Update to latest ESR release
+
 * Tue Jul  5 2016 Peter Robinson <pbrobinson@fedoraproject.org> 45.1.1-6
 - Add upstream patches for aarch64 48-bit VA
 
