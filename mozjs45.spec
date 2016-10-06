@@ -2,7 +2,7 @@
 
 Summary:	JavaScript interpreter and libraries
 Name:		mozjs%{major}
-Version:	%{major}.3.0
+Version:	%{major}.4.0
 Release:	1%{?dist}
 License:	MPLv2.0 and MPLv1.1 and BSD and GPLv2+ and GPLv3+ and LGPLv2.1 and LGPLv2.1+ and AFL and ASL 2.0
 URL:		https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Releases/45
@@ -135,6 +135,9 @@ tests/jstests.py -d -s --no-progress ../../js/src/js/src/shell/js
 %{_includedir}/mozjs-%{major}
 
 %changelog
+* Thu Oct 06 2016 Marek Skalický <mskalick@redhat.com> - 45.4.0-1
+- Update to latest ESR release 45.4.0
+
 * Fri Sep 16 2016 Marek Skalický <mskalick@redhat.com> - 45.3.0-1
 - Update to latest ESR release
 
