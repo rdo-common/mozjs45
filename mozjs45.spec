@@ -2,8 +2,8 @@
 
 Summary:	JavaScript interpreter and libraries
 Name:		mozjs%{major}
-Version:	%{major}.4.0
-Release:	1%{?dist}
+Version:	%{major}.5.0
+Release:	2%{?dist}
 License:	MPLv2.0 and MPLv1.1 and BSD and GPLv2+ and GPLv3+ and LGPLv2.1 and LGPLv2.1+ and AFL and ASL 2.0
 URL:		https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Releases/45
 Source0:        https://ftp.mozilla.org/pub/firefox/releases/%{version}esr/source/firefox-%{version}esr.source.tar.xz
@@ -13,8 +13,10 @@ Source1:        LICENSE.txt
 Patch0:	fix-64bit-archs.patch
 # same issue on s390 as in XUL/FF - https://bugzilla.redhat.com/show_bug.cgi?id=1219542
 Patch1: rhbz-1219542-s390-build.patch
-Patch2: mozbz-1143022.patch
-Patch3: mozbz-1277742.patch
+# Manually mmap on arm64 to ensure high 17 bits are clear
+Patch2: mozbz-1143022+1277742.patch
+# Fix AtomicOperations detection for disabled JIT
+Patch3: fix-atomicoperatios.patch
 
 BuildRequires:	pkgconfig(icu-i18n)
 BuildRequires:	pkgconfig(nspr)
@@ -51,7 +53,7 @@ you will need to install %{name}-devel.
 %patch1 -p3 -b .rhbz-1219542-s390
 %endif
 %patch2 -p3
-%patch3 -p3
+%patch3 -p1
 
 %if 0%{?fedora} > 22
 # Correct failed to link tests due to hardened build
@@ -74,23 +76,32 @@ sed -i '/^void$/{$!{N;s/^\(void\)\n\(js\:\:DisableExtraThreads()\)$/JS_PUBLIC_AP
 sed -i 's|\(void\) \(DisableExtraThreads()\)|JS_PUBLIC_API\(\1\) \2|g'  vm/Runtime.h
 
 %build
-# Need -fpermissive due to some macros using nullptr as bool false
-export CFLAGS="%{optflags} -fpermissive -fno-tree-vrp -fno-strict-aliasing"
-export CXXFLAGS="$CFLAGS"
+# Disable null pointer gcc6 optimization in gcc6 (rhbz#1328045)
+export CFLAGS="%{optflags} -fno-tree-vrp -fno-strict-aliasing -fno-delete-null-pointer-checks"
+export CXXFLAGS=$CFLAGS
+LINKFLAGS="%{?__global_ldflags}"
 export PYTHON=/usr/bin/python2
-# Disabled optimizations because they caused build failures (on ARM)
+
 %configure \
-	--with-system-nspr \
-	--enable-threadsafe \
-	--enable-readline \
-	--enable-xterm-updates \
-	--enable-gcgenerational \
-	--disable-optimize \
-	--with-system-zlib \
-	--enable-system-ffi \
-	--with-system-icu \
-	--without-intl-api \
-	--enable-pie
+ --enable-optimize \
+ --enable-pie \
+ --enable-posix-nspr-emulation \
+ --enable-readline \
+ --enable-release \
+ --enable-shared-js \
+ --enable-system-ffi \
+ --enable-xterm-updates \
+ --with-pthreads \
+ --with-system-icu \
+ --with-system-zlib \
+ --without-intl-api \
+%ifarch %{arm} aarch64 ppc ppc64 ppc64le
+ --disable-ion
+%endif
+
+# Without adding these sources resulted library has weak symbols
+echo "CPPSRCS += \$(DEPTH)/mfbt/Unified_cpp_mfbt0.cpp \$(DEPTH)/../../mfbt/Compression.cpp \$(DEPTH)/../../mfbt/decimal/Decimal.cpp" >> js/src/backend.mk
+#echo "STATIC_LIBS += \$(DEPTH)/mfbt/libmfbt.a" >> js/src/backend.mk
 
 make %{?_smp_mflags}
 
@@ -117,9 +128,11 @@ cp -p js/src/js-config.h %{buildroot}%{_includedir}/mozjs-%{major}
 cp %{SOURCE1} .
 
 %check
-%ifnarch %{arm} aarch64
-tests/jstests.py -d -s --no-progress ../../js/src/js/src/shell/js
-%endif
+# Run SpiderMonkey tests
+tests/jstests.py -d -s -t 1800 --no-progress ../../js/src/js/src/shell/js
+
+# Run basic JIT tests
+jit-test/jit_test.py -s -t 1800 --no-progress ../../js/src/js/src/shell/js basic
 
 %post -p /sbin/ldconfig
 
@@ -135,6 +148,13 @@ tests/jstests.py -d -s --no-progress ../../js/src/js/src/shell/js
 %{_includedir}/mozjs-%{major}
 
 %changelog
+* Mon Nov 21 2016 Marek Skalický <mskalick@redhat.com> - 45.5.0-2
+- Disable ION (JIT) for ARM and PPC architectures
+- Fixed producing weak symbols in libmozjs-45.so
+- Make tests passing on all architectures
+- Fixed platform detection of AtomicOperations with disabled ION
+- Update to 45.5.0
+
 * Thu Oct 06 2016 Marek Skalický <mskalick@redhat.com> - 45.4.0-1
 - Update to latest ESR release 45.4.0
 
