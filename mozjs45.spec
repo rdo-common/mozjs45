@@ -2,8 +2,8 @@
 
 Summary:	JavaScript interpreter and libraries
 Name:		mozjs%{major}
-Version:	%{major}.5.0
-Release:	2%{?dist}
+Version:	%{major}.5.1
+Release:	1%{?dist}
 License:	MPLv2.0 and MPLv1.1 and BSD and GPLv2+ and GPLv3+ and LGPLv2.1 and LGPLv2.1+ and AFL and ASL 2.0
 URL:		https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Releases/45
 Source0:        https://ftp.mozilla.org/pub/firefox/releases/%{version}esr/source/firefox-%{version}esr.source.tar.xz
@@ -148,6 +148,9 @@ jit-test/jit_test.py -s -t 1800 --no-progress ../../js/src/js/src/shell/js basic
 %{_includedir}/mozjs-%{major}
 
 %changelog
+* Mon Dec 05 2016 Marek Skalický <mskalick@redhat.com> - 45.5.1-1
+- Update to latest minor version 45.5.1
+
 * Mon Nov 21 2016 Marek Skalický <mskalick@redhat.com> - 45.5.0-2
 - Disable ION (JIT) for ARM and PPC architectures
 - Fixed producing weak symbols in libmozjs-45.so
