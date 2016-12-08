@@ -17,7 +17,7 @@ index 8606a18..60af775 100644
 -    || defined(__ppc__) || defined(__PPC__)
 +    || defined(__ppc__) || defined(__PPC__) \
 +    || defined(__aarch64__) || defined(__arm__) \
-+    || defined(__s390x__) defined(__mips__)
++    || defined(__s390x__) || defined(__mips__)
  # include "jit/none/AtomicOperations-ppc.h"
  #elif defined(JS_CODEGEN_NONE)
  # include "jit/none/AtomicOperations-none.h"
