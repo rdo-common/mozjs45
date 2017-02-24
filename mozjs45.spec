@@ -3,7 +3,7 @@
 Summary:	JavaScript interpreter and libraries
 Name:		mozjs%{major}
 Version:	45.7.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 License:	MPLv2.0 and MPLv1.1 and BSD and GPLv2+ and GPLv3+ and LGPLv2.1 and LGPLv2.1+ and AFL and ASL 2.0
 URL:		https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Releases/45
 Source0:        https://ftp.mozilla.org/pub/firefox/releases/%{version}esr/source/firefox-%{version}esr.source.tar.xz
@@ -17,6 +17,12 @@ Patch1: rhbz-1219542-s390-build.patch
 Patch2: mozbz-1143022+1277742.patch
 # Fix AtomicOperations detection for disabled JIT
 Patch3: fix-atomicoperatios.patch
+# Make these functions visible in shared library (used by mongodb package):
+# JS::UTF8CharsToNewTwoByteCharsZ
+# JS::LossyUTF8CharsToNewTwoByteCharsZ
+# js::DisableExtraThreads()
+# js::ReportOutOfMemory()
+Patch4: functions-visibility.patch
 
 BuildRequires:	pkgconfig(icu-i18n)
 BuildRequires:	pkgconfig(nspr)
@@ -54,6 +60,9 @@ you will need to install %{name}-devel.
 %endif
 %patch2 -p3
 %patch3 -p1
+pushd ../..
+%patch4 -p1
+popd
 
 %if 0%{?fedora} > 22
 # Correct failed to link tests due to hardened build
@@ -66,14 +75,6 @@ rm -rf ../../modules/zlib
 # Fix release number
 head -n -1 ../../config/milestone.txt > ../../config/milestone.txt
 echo "%{version}" >> ../../config/milestone.txt
-
-# Make mozjs these functions visible:
-# JS::UTF8CharsToNewTwoByteCharsZ and JS::LossyUTF8CharsToNewTwoByteCharsZ
-sed -i 's|^\(TwoByteCharsZ\)$|JS_PUBLIC_API\(\1\)|g' vm/CharacterEncoding.cpp
-sed -i 's|^extern\ \(TwoByteCharsZ\)$|JS_PUBLIC_API\(\1\)|g' ../public/CharacterEncoding.h
-# Also make visible js::DisableExtraThreads()
-sed -i '/^void$/{$!{N;s/^\(void\)\n\(js\:\:DisableExtraThreads()\)$/JS_PUBLIC_API\(\1\)\n\2/;ty;P;D;:y}}'  vm/Runtime.cpp
-sed -i 's|\(void\) \(DisableExtraThreads()\)|JS_PUBLIC_API\(\1\) \2|g'  vm/Runtime.h
 
 %build
 # Disable null pointer gcc6 optimization in gcc6 (rhbz#1328045)
@@ -94,7 +95,7 @@ export PYTHON=/usr/bin/python2
  --with-pthreads \
  --with-system-icu \
  --with-system-zlib \
- --without-intl-api \
+ --with-intl-api \
 %ifarch %{arm} aarch64 ppc ppc64 ppc64le
  --disable-ion
 %endif
@@ -148,6 +149,10 @@ jit-test/jit_test.py -s -t 1800 --no-progress ../../js/src/js/src/shell/js basic
 %{_includedir}/mozjs-%{major}
 
 %changelog
+* Tue Feb 21 2017 Marek Skalický <mskalick@redhat.com> - 45.7.0-3
+- Enable Internationalization api
+- Make more functions visible in shared library
+
 * Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 45.7.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
