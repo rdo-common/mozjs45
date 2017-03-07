@@ -2,8 +2,8 @@
 
 Summary:	JavaScript interpreter and libraries
 Name:		mozjs%{major}
-Version:	45.7.0
-Release:	3%{?dist}
+Version:	45.8.0
+Release:	1%{?dist}
 License:	MPLv2.0 and MPLv1.1 and BSD and GPLv2+ and GPLv3+ and LGPLv2.1 and LGPLv2.1+ and AFL and ASL 2.0
 URL:		https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Releases/45
 Source0:        https://ftp.mozilla.org/pub/firefox/releases/%{version}esr/source/firefox-%{version}esr.source.tar.xz
@@ -149,6 +149,9 @@ jit-test/jit_test.py -s -t 1800 --no-progress ../../js/src/js/src/shell/js basic
 %{_includedir}/mozjs-%{major}
 
 %changelog
+* Tue Mar 07 2017 Fedora Release Monitoring  <release-monitoring@fedoraproject.org> - 45.8.0-1
+- Update to 45.8.0 (#1429732)
+
 * Tue Feb 21 2017 Marek Skalický <mskalick@redhat.com> - 45.7.0-3
 - Enable Internationalization api
 - Make more functions visible in shared library
